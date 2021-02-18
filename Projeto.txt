@@ -1,0 +1,11 @@
+-Cadastro de usuário: ao cadastrar um usuário com email já existe, o formulário não pode ser limpo. (aula 27)
+
+-Depois q cadastrar/atualizar um usuário, ir para a tela de tabela.
+-Tirar os operadores ternários para melhorar a visualização do código.
+
+-UsuarioController -> salvarUsuarios: Tirar 1L e colocar new Perfil(PerfilTipo.ADMIN.getCod()) como no método preEditarCadastroDadosPessoais para melhorar a visualização.
+
+-MÉDICO - Quando um MEDICO/ADMIN se torna apenas medico, ele n poderia acessar a lista de usuários naquele momento e isso está acontecendo. Está ficando normal apenas depois do logout.
+
+-MÉDICO - Colocar para não salvar quando adicionar especialidade inexistente.
+-Selecionar consulta apenas de de segunda à sexta

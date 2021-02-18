@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+	  layout:decorate="~{layout}">
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+
+	<section class="layout-content" layout:fragment="corpo">
+		<main role="main">
+		
+		<section class="jumbotron text-center">			
+			<img class="d-block mx-auto" th:src="@{/image/spring-security.png}"
+				width="72" height="72">
+			<div class="container">
+				<h1 class="jumbotron-heading">Clínica Spring Security</h1>
+				<p class="lead text-muted">Médicos e Especialistas</p>
+			</div>
+		</section>
+
+		<div class="album py-5 bg-light">
+			<div class="container d-flex justify-content-center align-items-center">
+
+				<div class="row">
+					<div class="col-md-12">					
+					
+						<div th:replace="fragments/alert :: alerta-sucesso"></div>
+												
+						<form th:action="${agendamento.id == null} ? @{/agendamentos/salvar} : @{/agendamentos/editar}" 
+							th:object="${agendamento}"
+							method="POST" class="was-validated">
+							
+							<div class="form-row">
+								<div class="form-group col-md-12">
+									<small class="form-text text-muted">Selecione 
+										a especialidade médica referente a sua consulta.</small>
+									<input type="text" class="form-control"
+										id="especialidade" placeholder="Pediatria"
+										th:field="*{especialidade.titulo}" required />
+									<div class="invalid-feedback">
+								      Especialidade é obrigatória.
+								    </div>
+								</div>
+							</div>
+	
+							<div class="form-row">
+								<div class="form-group col-md-12">
+									<div class="card">
+									  <div class="card-header">
+									    Indique o médico desejado
+									  </div>
+									  
+									<!-- Seleciona o médico de acordo com a especialidade selecionada -->
+									  <div class="card-body" id="medicos">
+ <!-- Tds opções serão criadas em tag html no js e será adicionado na pag de forma dinâmica-->								  									    
+											<!-- options by jQuery -->
+									  </div>									  							  
+									</div>
+								</div>
+							</div>
+							
+							<div class="form-row">								
+								<div class="form-group col-md-12">
+									<small class="form-text text-muted">Selecione 
+										a data da consulta</small>
+									<input class="form-control" type="date" id="data" 
+										th:field="*{dataConsulta}" required/>
+									<div class="invalid-feedback">
+								      Data é obrigatória.
+								    </div>	
+								</div>
+							</div>
+							
+							<div class="form-row">
+								<div class="form-group col-md-12">
+									<small id="hr-small" class="form-text text-muted">Horários disponíveis
+										para a consulta</small>
+									<select id="horarios" class="custom-select" size="5" 
+										th:field="*{horario.id}" required>
+									  	<option th:value="*{horario.id}" 
+									  			th:text="*{horario.horaMinuto}"></option>
+									</select>
+									<div class="invalid-feedback">Horário é obrigatório</div>
+								</div>
+							</div>
+							
+							<input type="hidden" th:field="*{id}"/>							
+							<div class="form-group row">
+								<div class="col-sm-10">
+									<button id="btn-salvar" type="submit" class="btn btn-primary" 
+										data-toggle="tooltip" data-placement="right" title="Salvar">
+										<i class="fas fa-save"></i>
+									</button>
+								</div>
+							</div>
+						</form>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		</main>
+		
+	</section>
+	<script	th:src="@{/js/agendamento.js(v=${version})}" th:fragment="js"></script>
+	<script th:inline="javascript" th:fragment="inlinescript">
+	/*JS para buscar o médico pela especialidade qnd abre a pag para editar os dados
+	A instrunção a baixo com th:if é para saber se o medico está != null, se tiver, td o código dentro
+	dele será executado. OBS: essa instrução do thymeleaf fica dentro de um comentário da msma forma de acordo com a documentação.*/
+	
+	/*[# th:if="${agendamento.medico != null}" ]*/
+		$( document ).ready(function() {
+			var id = [[${agendamento.medico.id}]];
+			//Recupera a especialdiade pelo titulo da especialidade
+			var titulo = [(${#strings.concat("'",agendamento.especialidade.titulo,"'")})];
+			
+/*Localiza o médico a partir do título da especialidade. N vai localizar apenas o médico q está fazendo 
+ parte do obj Agendamento (medico q teve o agendamento realizado pelo paciente), precisa mostrar tds os 
+ médicos q fazem parte daquela especialidade pq o paciente pode querer alterar o médico q possui aquela 
+ especialidade 
+ 
+ Este código está denro do JS inline e n dentro do arq pq vai precisar recuperar do obj Agendamento q está
+ vindo como resposta para a pag, as informações q são o ID do médico e o título da especialidade*/
+			$.get( "/medicos/especialidade/titulo/" + titulo, function( result ) {
+				$.each(result, function (k, v) {
+					//Se o ID da lista é igual ao obj do agendamento, então seleciona ele com checked
+					$("#medicos").append(
+						 '<div class="custom-control custom-radio">'
+						+  '<input class="custom-control-input" type="radio" id="customRadio'+ k +'" name="medico.id" value="'+ v.id +'" required '+ (v.id == id ? "checked" : "")+' />'
+						+  '<label class="custom-control-label" for="customRadio'+ k +'">'+ v.nome +'</label>'
+						+'</div>'
+					);
+				});
+			});
+		});
+	/*[/]*/
+	</script>
+</body>
+</html>
